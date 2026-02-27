@@ -1,0 +1,47 @@
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Estilos personalizados (opcional) */
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* ... outras variáveis */
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    /* ... outras variáveis para modo escuro */
+  }
+}
+
+/* Classes utilitárias personalizadas */
+@layer utilities {
+  .text-gradient-gold {
+    @apply bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent;
+  }
+  
+  .shadow-gold-glow {
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+  }
+}
+/* No seu arquivo global CSS (ex: App.css, index.css, ou styles.css) */
+body, html {
+  background-color: #000000; /* Preto total */
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* Para garantir que toda a página seja preta */
+#root, .App, main {
+  background-color: #000000;
+  min-height: 100vh;
+}
