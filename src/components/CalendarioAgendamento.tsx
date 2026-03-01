@@ -173,13 +173,17 @@ export const CalendarioAgendamento = () => {
     return true;
   };
 
-  const confirmarAgendamento = async () => {
+    const confirmarAgendamento = async () => {
+    console.log("🔍 Iniciando confirmação de agendamento");
+    
     if (!dataSelecionada || !horarioSelecionado) {
+      console.log("❌ Data ou horário não selecionado");
       setErro("Selecione uma data e horário.");
       return;
     }
 
     if (!validarFormulario()) {
+      console.log("❌ Formulário inválido");
       return;
     }
 
@@ -188,21 +192,23 @@ export const CalendarioAgendamento = () => {
     
     try {
       const dataStr = dataSelecionada.toISOString().split('T')[0];
-      
-      // Formatar data para exibição
-      const dataObj = new Date(dataStr + 'T12:00:00');
-      const dataFormatada = dataObj.toLocaleDateString('pt-BR');
+      console.log("📅 Data formatada:", dataStr);
       
       const payload = {
-        ...formData,
+        nome: formData.nome,
+        telefone: formData.telefone,
+        email: formData.email,
+        veiculo: formData.veiculo,
+        servico: formData.servico,
         dataPreferencial: dataStr,
-        dataFormatada: dataFormatada,
         horarioPreferencial: horarioSelecionado,
+        mensagem: formData.mensagem || ""
       };
       
-      console.log("Enviando agendamento:", payload);
+      console.log("📤 Payload a ser enviado:", payload);
+      console.log("🌐 URL da API:", `${API_BASE_URL}/agendamentos/`);
       
-      const response = await fetch(`${API_BASE_URL}/agendamentos/agendamentos`, {
+      const response = await fetch(`${API_BASE_URL}/agendamentos/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -210,22 +216,27 @@ export const CalendarioAgendamento = () => {
         body: JSON.stringify(payload),
       });
 
+      console.log("📥 Status da resposta:", response.status);
+      
       const result = await response.json();
+      console.log("📦 Dados da resposta:", result);
 
       if (!response.ok) {
-        throw new Error(result.message || 'Erro ao criar agendamento');
+        throw new Error(result.message || `Erro HTTP: ${response.status}`);
       }
 
-      console.log("Resposta do servidor:", result);
+      console.log("✅ Agendamento criado com sucesso! ID:", result.agendamento?.id);
       
+      // PRIMEIRO: Mostrar sucesso
       setSucesso("Agendamento realizado com sucesso!");
       setAgendadoComSucesso(true);
       
-      // Atualizar horários disponíveis para esta data
+      // SEGUNDO: Buscar horários atualizados (mantendo os dados)
       await buscarHorariosDisponiveis(dataSelecionada);
       
-      // Reset após 5 segundos
+      // TERCEIRO: Reset após 5 segundos (apenas se ainda estiver na tela de sucesso)
       setTimeout(() => {
+        // Verificar se ainda está na tela de sucesso antes de resetar
         setAgendadoComSucesso(false);
         setSucesso(null);
         setDataSelecionada(null);
@@ -241,8 +252,8 @@ export const CalendarioAgendamento = () => {
       }, 5000);
       
     } catch (error) {
+      console.error("❌ Erro detalhado:", error);
       setErro(error instanceof Error ? error.message : 'Erro ao confirmar agendamento');
-      console.error("Erro no agendamento:", error);
     } finally {
       setAgendando(false);
     }
